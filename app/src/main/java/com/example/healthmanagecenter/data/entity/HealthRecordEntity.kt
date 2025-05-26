@@ -8,11 +8,12 @@ data class HealthRecordEntity(
     @PrimaryKey(autoGenerate = true)
     val recordId: Long = 0,
     val userId: Long,
-    val time: Long, // timestamp in milliseconds
-    val weight: Float?, // in kg
-    val height: Float?, // in cm
-    val heartRate: Int?, // beats per minute
+    val timestamp: Long, // record time in millis
+    val weight: Float?, // kg
+    val height: Float?, // cm
+    val heartRate: Int?, // bpm
     val bloodPressureHigh: Int?, // systolic
     val bloodPressureLow: Int?, // diastolic
-    val sleepHours: Float? // hours of sleep
+    val sleepHours: Float?, // hours
+    val isAnalyzed: Boolean = false // whether analyzed
 ) 

@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.Medication
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +21,11 @@ import com.example.healthmanagecenter.viewmodel.ElderHomeViewModel
 import com.example.healthmanagecenter.viewmodel.LoginRegisterViewModel
 import kotlinx.coroutines.launch
 import com.example.healthmanagecenter.ui.screen.AppDrawer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import android.app.Application
+import androidx.compose.ui.platform.LocalContext
+import com.example.healthmanagecenter.viewmodel.NotificationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,10 +37,18 @@ fun ElderHomeScreen(
     onLogout: () -> Unit,
     onHealthRecords: () -> Unit,
     onMedication: () -> Unit,
-    onAlerts: () -> Unit
+    onAlerts: () -> Unit,
+    onNotification: () -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current.applicationContext
+    val notificationViewModel: NotificationViewModel = viewModel(factory = object : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return NotificationViewModel(context as Application, userId) as T
+        }
+    })
+    val unreadCount by notificationViewModel.uiState.collectAsState()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -58,9 +72,10 @@ fun ElderHomeScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* TODO: Notification */ }) {
-                            Icon(Icons.Default.Notifications, contentDescription = "Notifications")
-                        }
+                        NotificationBell(
+                            unreadCount = unreadCount.notifications.count { !it.isRead },
+                            onClick = onNotification
+                        )
                     }
                 )
             },
@@ -97,7 +112,7 @@ fun ElderHomeScreen(
                 ) {
                     FeatureCard("Health Records", Icons.Default.MonitorHeart, onHealthRecords, Color(0xFF4CAF50))
                     FeatureCard("Medication", Icons.Default.Medication, onMedication, Color(0xFF2196F3))
-                    FeatureCard("Alerts", Icons.Default.Warning, onAlerts, Color(0xFFFFC107))
+                    FeatureCard("Doctor Feedback", Icons.Default.Feedback, onAlerts, Color(0xFF1976D2))
                 }
             }
         }
@@ -126,4 +141,5 @@ fun FeatureCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVe
             Text(title, style = MaterialTheme.typography.titleMedium, color = color)
         }
     }
-} 
+}
+

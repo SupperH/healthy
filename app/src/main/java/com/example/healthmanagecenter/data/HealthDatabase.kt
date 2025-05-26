@@ -12,15 +12,18 @@ import com.example.healthmanagecenter.data.entity.AlertEntity
 import com.example.healthmanagecenter.data.entity.HealthRecordEntity
 import com.example.healthmanagecenter.data.entity.MedicationReminderEntity
 import com.example.healthmanagecenter.data.entity.UserEntity
+import com.example.healthmanagecenter.data.entity.DoctorFeedbackEntity
+import com.example.healthmanagecenter.data.dao.DoctorFeedbackDao
 
 @Database(
     entities = [
         UserEntity::class,
         HealthRecordEntity::class,
         AlertEntity::class,
-        MedicationReminderEntity::class
+        MedicationReminderEntity::class,
+        DoctorFeedbackEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class HealthDatabase : RoomDatabase() {
@@ -28,6 +31,7 @@ abstract class HealthDatabase : RoomDatabase() {
     abstract fun healthRecordDao(): HealthRecordDao
     abstract fun alertDao(): AlertDao
     abstract fun medicationReminderDao(): MedicationReminderDao
+    abstract fun doctorFeedbackDao(): DoctorFeedbackDao
 
     companion object {
         @Volatile
@@ -39,7 +43,9 @@ abstract class HealthDatabase : RoomDatabase() {
                     context.applicationContext,
                     HealthDatabase::class.java,
                     "health_database"
-                ).build()
+                )
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }

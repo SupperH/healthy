@@ -104,9 +104,18 @@ fun NavGraph(
                         viewModel.logout()
                         navController.navigate(Screen.Login.route) { popUpTo(0) }
                     },
-                    onHealthRecords = { /* TODO */ },
-                    onMedication = { /* TODO */ },
-                    onAlerts = { /* TODO */ }
+                    onHealthRecords = {
+                        navController.navigate("health_record/$userId")
+                    },
+                    onMedication = {
+                        navController.navigate("notification/$userId")
+                    },
+                    onAlerts = {
+                        navController.navigate("notification/$userId")
+                    },
+                    onNotification = {
+                        navController.navigate("notification/$userId") // 这个是解决报错关键
+                    }
                 )
             }
         }
@@ -137,7 +146,63 @@ fun NavGraph(
                     viewModel.logout()
                     navController.navigate(Screen.Login.route) { popUpTo(0) }
                 },
-                onElderClick = { /* TODO */ }
+                onElderClick = { elderId ->
+                    navController.navigate("doctor_feedback/$userId/$elderId")
+                },
+                onHealthDetail = { elderId ->
+                    navController.navigate("elder_health_detail/$elderId")
+                }
+            )
+        }
+
+        composable(
+            route = "health_record/{userId}",
+            arguments = listOf(navArgument("userId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getLong("userId") ?: return@composable
+            HealthRecordScreen(
+                userId = userId,
+                onBack = { navController.popBackStack() },
+                onNotification = { navController.navigate("notification/$userId") }
+            )
+        }
+
+        composable(
+            route = "notification/{userId}",
+            arguments = listOf(navArgument("userId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getLong("userId") ?: return@composable
+            NotificationScreen(
+                userId = userId,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = "doctor_feedback/{doctorId}/{elderId}",
+            arguments = listOf(
+                navArgument("doctorId") { type = NavType.LongType },
+                navArgument("elderId") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val doctorId = backStackEntry.arguments?.getLong("doctorId") ?: return@composable
+            val elderId = backStackEntry.arguments?.getLong("elderId") ?: return@composable
+            DoctorFeedbackScreen(
+                doctorId = doctorId,
+                elderId = elderId,
+                onMenu = { navController.popBackStack() },
+                onNotification = { navController.navigate("notification/$doctorId") }
+            )
+        }
+
+        composable(
+            route = "elder_health_detail/{elderId}",
+            arguments = listOf(navArgument("elderId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val elderId = backStackEntry.arguments?.getLong("elderId") ?: return@composable
+            ElderHealthDetailScreen(
+                elderId = elderId,
+                onBack = { navController.popBackStack() }
             )
         }
     }
