@@ -18,6 +18,8 @@ class DoctorHomeViewModel(application: Application) : AndroidViewModel(applicati
     private val userDao = HealthDatabase.getDatabase(application).userDao()
     private val alertDao = HealthDatabase.getDatabase(application).alertDao()
     private val healthRecordDao = HealthDatabase.getDatabase(application).healthRecordDao()
+    private val doctorFeedbackDao = HealthDatabase.getDatabase(application).doctorFeedbackDao()
+    private val doctorFeedbackViewModel = DoctorFeedbackViewModel(application)
 
     fun getElders(doctorId: Long): Flow<List<UserEntity>> {
         return userDao.getEldersByDoctorId(doctorId)
@@ -30,5 +32,34 @@ class DoctorHomeViewModel(application: Application) : AndroidViewModel(applicati
     suspend fun getLatestHealthRecord(userId: Long): HealthRecordEntity? {
         return healthRecordDao.getHealthRecordsByUserId(userId)
             .firstOrNull()?.firstOrNull()
+    }
+
+    fun getAbnormalFeedbackCount(doctorId: Long): Flow<Int> {
+        return doctorFeedbackDao.getAbnormalFeedbackCount(doctorId)
+    }
+
+    suspend fun addFeedback(
+        elderId: Long,
+        doctorId: Long,
+        healthRecordId: Long,
+        comment: String
+    ): Boolean {
+        return try {
+            val record = healthRecordDao.getHealthRecordById(healthRecordId)
+            record?.let {
+                val (isAbnormal, abnormalType) = doctorFeedbackViewModel.checkHealthRecordAbnormal(it)
+                doctorFeedbackViewModel.addFeedback(
+                    elderId = elderId,
+                    doctorId = doctorId,
+                    healthRecordId = healthRecordId,
+                    comment = comment,
+                    isAbnormal = isAbnormal,
+                    abnormalType = abnormalType
+                )
+                true
+            } ?: false
+        } catch (e: Exception) {
+            false
+        }
     }
 } 

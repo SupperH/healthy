@@ -11,20 +11,32 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import com.example.healthmanagecenter.ui.screen.ElderHealthDetailScreen
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Register : Screen("register")
-    object PickDoctor : Screen("pick_doctor/{userId}")
-    object ElderHome : Screen("elder_home/{userId}")
-    object DoctorHome : Screen("doctor_home/{userId}")
-
-    fun createRoute(vararg args: String): String {
-        var result = route
-        args.forEachIndexed { index, arg ->
-            result = result.replace("{userId}", arg)
-        }
-        return result
+    object PickDoctor : Screen("pick_doctor/{userId}") {
+        fun createRoute(userId: String) = "pick_doctor/$userId"
+    }
+    object ElderHome : Screen("elder_home/{userId}") {
+        fun createRoute(userId: String) = "elder_home/$userId"
+    }
+    object DoctorHome : Screen("doctor_home/{userId}") {
+        fun createRoute(userId: String) = "doctor_home/$userId"
+    }
+    object HealthRecord : Screen("health_record/{userId}") {
+        fun createRoute(userId: String) = "health_record/$userId"
+    }
+    object DoctorFeedback : Screen("doctor_feedback/{elderId}/{healthRecordId}/{doctorId}") {
+        fun createRoute(elderId: String, healthRecordId: String, doctorId: String) = 
+            "doctor_feedback/$elderId/$healthRecordId/$doctorId"
+    }
+    object ElderFeedback : Screen("elder_feedback/{elderId}") {
+        fun createRoute(elderId: String) = "elder_feedback/$elderId"
+    }
+    object ElderHealthDetail : Screen("elder_health_detail/{elderId}/{doctorId}") {
+        fun createRoute(elderId: String, doctorId: String) = "elder_health_detail/$elderId/$doctorId"
     }
 }
 
@@ -115,6 +127,9 @@ fun NavGraph(
                     },
                     onNotification = {
                         navController.navigate("notification/$userId") // 这个是解决报错关键
+                    },
+                    onNavigateToElderFeedback = {
+                        navController.navigate(Screen.ElderFeedback.createRoute(userId.toString()))
                     }
                 )
             }
@@ -147,16 +162,17 @@ fun NavGraph(
                     navController.navigate(Screen.Login.route) { popUpTo(0) }
                 },
                 onElderClick = { elderId ->
-                    navController.navigate("doctor_feedback/$userId/$elderId")
+                    navController.navigate(Screen.ElderHealthDetail.createRoute(elderId.toString(), userId.toString()))
                 },
                 onHealthDetail = { elderId ->
-                    navController.navigate("elder_health_detail/$elderId")
+                    // This navigation is now handled by onElderClick
+                    // navController.navigate(Screen.ElderHealthDetail.createRoute(elderId.toString(), userId.toString()))
                 }
             )
         }
 
         composable(
-            route = "health_record/{userId}",
+            route = Screen.HealthRecord.route,
             arguments = listOf(navArgument("userId") { type = NavType.LongType })
         ) { backStackEntry ->
             val userId = backStackEntry.arguments?.getLong("userId") ?: return@composable
@@ -179,30 +195,56 @@ fun NavGraph(
         }
 
         composable(
-            route = "doctor_feedback/{doctorId}/{elderId}",
+            route = Screen.DoctorFeedback.route,
             arguments = listOf(
-                navArgument("doctorId") { type = NavType.LongType },
-                navArgument("elderId") { type = NavType.LongType }
+                navArgument("elderId") { type = NavType.LongType },
+                navArgument("healthRecordId") { type = NavType.LongType },
+                navArgument("doctorId") { type = NavType.LongType }
             )
         ) { backStackEntry ->
-            val doctorId = backStackEntry.arguments?.getLong("doctorId") ?: return@composable
             val elderId = backStackEntry.arguments?.getLong("elderId") ?: return@composable
+            val healthRecordId = backStackEntry.arguments?.getLong("healthRecordId") ?: return@composable
+            val doctorId = backStackEntry.arguments?.getLong("doctorId") ?: return@composable
+            
             DoctorFeedbackScreen(
-                doctorId = doctorId,
                 elderId = elderId,
-                onMenu = { navController.popBackStack() },
-                onNotification = { navController.navigate("notification/$doctorId") }
+                healthRecordId = healthRecordId,
+                doctorId = doctorId,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
         composable(
-            route = "elder_health_detail/{elderId}",
-            arguments = listOf(navArgument("elderId") { type = NavType.LongType })
+            route = Screen.ElderHealthDetail.route,
+            arguments = listOf(
+                navArgument("elderId") { type = NavType.LongType },
+                navArgument("doctorId") { type = NavType.LongType }
+            )
         ) { backStackEntry ->
             val elderId = backStackEntry.arguments?.getLong("elderId") ?: return@composable
+            val doctorId = backStackEntry.arguments?.getLong("doctorId") ?: return@composable
+            
             ElderHealthDetailScreen(
                 elderId = elderId,
-                onBack = { navController.popBackStack() }
+                doctorId = doctorId,
+                onBack = { navController.popBackStack() },
+                onNavigateToFeedback = { healthRecordId, eldId, docId ->
+                    navController.navigate(Screen.DoctorFeedback.createRoute(eldId.toString(), healthRecordId.toString(), docId.toString()))
+                }
+            )
+        }
+
+        composable(
+            route = Screen.ElderFeedback.route,
+            arguments = listOf(
+                navArgument("elderId") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val elderId = backStackEntry.arguments?.getLong("elderId") ?: return@composable
+            
+            ElderFeedbackScreen(
+                elderId = elderId,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

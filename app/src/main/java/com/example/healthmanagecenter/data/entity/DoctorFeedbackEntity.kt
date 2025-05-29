@@ -11,5 +11,7 @@ data class DoctorFeedbackEntity(
     val doctorId: Long,
     val comment: String,
     val timestamp: Long,
-    val isRead: Boolean = false
+    val isRead: Boolean = false,
+    val isAbnormal: Boolean = false,  // 标记是否为异常数据
+    val abnormalType: String? = null  // 异常类型（如：心率异常、血压异常等）
 ) 

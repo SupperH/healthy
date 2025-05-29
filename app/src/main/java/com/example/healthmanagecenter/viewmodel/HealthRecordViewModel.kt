@@ -15,7 +15,7 @@ import java.util.*
 
 class HealthRecordViewModel(application: Application, private val userId: Long) : AndroidViewModel(application) {
     private val db = HealthDatabase.getDatabase(application)
-    private val healthRecordDao = db.healthRecordDao()
+    val healthRecordDao = db.healthRecordDao()
     private val doctorFeedbackDao = db.doctorFeedbackDao()
 
     private val _uiState = MutableStateFlow(HealthRecordUiState())

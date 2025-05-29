@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModelProvider
 import android.app.Application
 import androidx.compose.ui.platform.LocalContext
 import com.example.healthmanagecenter.viewmodel.NotificationViewModel
+import com.example.healthmanagecenter.ui.components.NotificationBell
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +39,8 @@ fun ElderHomeScreen(
     onHealthRecords: () -> Unit,
     onMedication: () -> Unit,
     onAlerts: () -> Unit,
-    onNotification: () -> Unit
+    onNotification: () -> Unit,
+    onNavigateToElderFeedback: () -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -48,7 +50,7 @@ fun ElderHomeScreen(
             return NotificationViewModel(context as Application, userId) as T
         }
     })
-    val unreadCount by notificationViewModel.uiState.collectAsState()
+    val notificationUiState by notificationViewModel.uiState.collectAsState()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -73,7 +75,7 @@ fun ElderHomeScreen(
                     },
                     actions = {
                         NotificationBell(
-                            unreadCount = unreadCount.notifications.count { !it.isRead },
+                            unreadCount = notificationUiState.unreadFeedbackCount,
                             onClick = onNotification
                         )
                     }
@@ -112,7 +114,7 @@ fun ElderHomeScreen(
                 ) {
                     FeatureCard("Health Records", Icons.Default.MonitorHeart, onHealthRecords, Color(0xFF4CAF50))
                     FeatureCard("Medication", Icons.Default.Medication, onMedication, Color(0xFF2196F3))
-                    FeatureCard("Doctor Feedback", Icons.Default.Feedback, onAlerts, Color(0xFF1976D2))
+                    FeatureCard("Doctor Feedback", Icons.Default.Feedback, onNavigateToElderFeedback, Color(0xFF1976D2))
                 }
             }
         }

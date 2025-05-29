@@ -5,11 +5,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthmanagecenter.data.HealthDatabase
 import com.example.healthmanagecenter.data.entity.DoctorFeedbackEntity
+import com.example.healthmanagecenter.data.entity.HealthRecordEntity
 import com.example.healthmanagecenter.data.entity.MedicationReminderEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -26,14 +28,15 @@ class NotificationViewModel(application: Application, private val userId: Long) 
 
     fun loadNotifications() = viewModelScope.launch {
         combine(
-            doctorFeedbackDao.getUnreadFeedbacksForElder(userId),
-            medicationReminderDao.getRemindersByUserId(userId)
-        ) { feedbacks, reminders ->
+            doctorFeedbackDao.getFeedbacksByElderId(userId),
+            medicationReminderDao.getRemindersByUserId(userId),
+            doctorFeedbackDao.getUnreadFeedbackCount(userId)
+        ) { feedbacks: List<DoctorFeedbackEntity>, reminders: List<MedicationReminderEntity>, unreadFeedbackCount: Int ->
             val feedbackItems = feedbacks.map {
                 NotificationUiState.NotificationItem(
                     id = it.id,
                     type = NotificationUiState.Type.Feedback,
-                    title = "Doctor Feedback",
+                    title = "医生反馈",
                     content = it.comment,
                     timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(it.timestamp)),
                     isRead = it.isRead
@@ -43,15 +46,21 @@ class NotificationViewModel(application: Application, private val userId: Long) 
                 NotificationUiState.NotificationItem(
                     id = it.reminderId,
                     type = NotificationUiState.Type.Reminder,
-                    title = "Medication Reminder",
-                    content = "Take ${it.medicineName} at ${it.reminderTime}",
+                    title = "用药提醒",
+                    content = "请在 ${it.reminderTime} 服用 ${it.medicineName}",
                     timeStr = it.reminderTime,
                     isRead = false // 可扩展为已读
                 )
             }
-            (feedbackItems + reminderItems).sortedByDescending { it.timeStr }
-        }.collect { list ->
-            _uiState.value = _uiState.value.copy(notifications = list)
+            
+            val allNotifications = (feedbackItems + reminderItems).sortedByDescending { it.timeStr }
+
+            NotificationUiState(
+                notifications = allNotifications,
+                unreadFeedbackCount = unreadFeedbackCount
+            )
+        }.collect { newState ->
+            _uiState.value = newState
         }
     }
 
@@ -60,12 +69,21 @@ class NotificationViewModel(application: Application, private val userId: Long) 
             doctorFeedbackDao.markFeedbackAsRead(item.id)
         }
         // MedicationReminder 可扩展为已读
-        loadNotifications()
+        // loadNotifications() // 标记已读后，combine会自动更新
+    }
+
+    fun markAllFeedbackAsRead() = viewModelScope.launch {
+        doctorFeedbackDao.getFeedbacksByElderId(userId).firstOrNull()?.forEach {
+            if (!it.isRead) {
+                doctorFeedbackDao.markFeedbackAsRead(it.id)
+            }
+        }
     }
 }
 
 data class NotificationUiState(
-    val notifications: List<NotificationItem> = emptyList()
+    val notifications: List<NotificationItem> = emptyList(),
+    val unreadFeedbackCount: Int = 0 // 未读评论数量
 ) {
     data class NotificationItem(
         val id: Long,

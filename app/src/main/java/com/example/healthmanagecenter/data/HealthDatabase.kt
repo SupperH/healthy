@@ -23,7 +23,7 @@ import com.example.healthmanagecenter.data.dao.DoctorFeedbackDao
         MedicationReminderEntity::class,
         DoctorFeedbackEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class HealthDatabase : RoomDatabase() {

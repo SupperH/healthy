@@ -7,6 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
@@ -21,101 +23,164 @@ import androidx.compose.ui.unit.dp
 import com.example.healthmanagecenter.viewmodel.DoctorFeedbackViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.healthmanagecenter.data.entity.DoctorFeedbackEntity
+import com.example.healthmanagecenter.data.entity.HealthRecordEntity
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
+import com.example.healthmanagecenter.ui.components.FeedbackCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DoctorFeedbackScreen(
-    doctorId: Long,
     elderId: Long,
-    onMenu: () -> Unit,
-    onNotification: () -> Unit
+    healthRecordId: Long,
+    doctorId: Long,
+    onNavigateBack: () -> Unit,
+    viewModel: DoctorFeedbackViewModel = viewModel()
 ) {
-    val context = LocalContext.current.applicationContext
-    val viewModel: DoctorFeedbackViewModel = viewModel(factory = object : androidx.lifecycle.ViewModelProvider.Factory {
-        override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-            return DoctorFeedbackViewModel(context as android.app.Application, doctorId) as T
-        }
-    })
-    val feedbacks by viewModel.feedbackList.collectAsState()
-    val unreadCount by viewModel.unreadCount.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
+    var comment by remember { mutableStateOf("") }
+    var showSuccessMessage by remember { mutableStateOf(false) }
+    var showErrorMessage by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val filteredFeedbacks = feedbacks.filter { it.elderId == elderId && it.comment.isNotBlank() && !it.comment.startsWith("System detected") }
-    var dialogContent by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Feedbacks") },
+                title = { Text("Health Record Feedback") },
                 navigationIcon = {
-                    IconButton(onClick = onMenu) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
-                },
-                actions = {
-                    NotificationBell(
-                        unreadCount = unreadCount,
-                        onClick = onNotification
-                    )
                 }
             )
-        },
-        containerColor = Color(0xFFF5F5F5)
+        }
     ) { padding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            items(filteredFeedbacks) { feedback ->
-                FeedbackCard(
-                    feedback = feedback,
-                    onClick = { dialogContent = feedback.comment }
-                )
-                Spacer(Modifier.height(12.dp))
-            }
-        }
-        if (dialogContent != null) {
-            AlertDialog(
-                onDismissRequest = { dialogContent = null },
-                title = { Text("Doctor's Feedback") },
-                text = { Text(dialogContent!!) },
-                confirmButton = {
-                    Button(onClick = { dialogContent = null }) { Text("OK") }
+            // Health Record Summary Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "Health Record Details",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    // Health data will be displayed here
                 }
-            )
-        }
-    }
-}
-
-@Composable
-fun FeedbackCard(
-    feedback: DoctorFeedbackEntity,
-    onClick: () -> Unit
-) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        shape = MaterialTheme.shapes.medium
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Feedback, contentDescription = null, tint = Color(0xFF4A90E2))
-                Spacer(Modifier.width(8.dp))
-                Text("Elder ID: ${feedback.elderId}", style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.weight(1f))
-                Text(java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(java.util.Date(feedback.timestamp)), style = MaterialTheme.typography.bodySmall)
             }
-            Spacer(Modifier.height(8.dp))
-            Text("Doctor's Comment:", style = MaterialTheme.typography.labelMedium)
-            Text(
-                feedback.comment,
-                color = Color.Unspecified,
-                style = MaterialTheme.typography.bodyMedium
-            )
+
+            // Comment Section
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "Add Your Feedback",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    
+                    OutlinedTextField(
+                        value = comment,
+                        onValueChange = { comment = it },
+                        label = { Text("Write your feedback...") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        )
+                    )
+                    
+                    Spacer(Modifier.height(16.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(
+                            onClick = { onNavigateBack() },
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text("Cancel")
+                        }
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    val success = viewModel.addFeedback(
+                                        elderId = elderId,
+                                        doctorId = doctorId,
+                                        healthRecordId = healthRecordId,
+                                        comment = comment
+                                    )
+                                    if (success) {
+                                        comment = ""
+                                        showSuccessMessage = true
+                                        onNavigateBack()
+                                    } else {
+                                        showErrorMessage = true
+                                    }
+                                }
+                            },
+                            enabled = comment.isNotBlank()
+                        ) {
+                            Icon(Icons.Default.Comment, contentDescription = "Submit")
+                            Spacer(Modifier.width(4.dp))
+                            Text("Submit Feedback")
+                        }
+                    }
+                }
+            }
+        }
+
+        if (showSuccessMessage) {
+            Snackbar(
+                modifier = Modifier.padding(16.dp),
+                action = {
+                    TextButton(onClick = { showSuccessMessage = false }) {
+                        Text("Dismiss")
+                    }
+                }
+            ) {
+                Text("Feedback submitted successfully")
+            }
+        }
+
+        if (showErrorMessage) {
+            Snackbar(
+                modifier = Modifier.padding(16.dp),
+                action = {
+                    TextButton(onClick = { showErrorMessage = false }) {
+                        Text("Dismiss")
+                    }
+                }
+            ) {
+                Text("Failed to submit feedback. Please try again.")
+            }
         }
     }
 }

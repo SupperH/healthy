@@ -9,12 +9,21 @@ interface DoctorFeedbackDao {
     @Insert
     suspend fun insertFeedback(feedback: DoctorFeedbackEntity): Long
 
-    @Query("SELECT * FROM doctor_feedback WHERE elderId = :elderId AND isRead = 0")
-    fun getUnreadFeedbacksForElder(elderId: Long): Flow<List<DoctorFeedbackEntity>>
+    @Update
+    suspend fun updateFeedback(feedback: DoctorFeedbackEntity)
+
+    @Query("SELECT * FROM doctor_feedback WHERE elderId = :elderId ORDER BY timestamp DESC")
+    fun getFeedbacksByElderId(elderId: Long): Flow<List<DoctorFeedbackEntity>>
 
     @Query("SELECT * FROM doctor_feedback WHERE doctorId = :doctorId ORDER BY timestamp DESC")
-    fun getFeedbacksForDoctor(doctorId: Long): Flow<List<DoctorFeedbackEntity>>
+    fun getFeedbacksByDoctorId(doctorId: Long): Flow<List<DoctorFeedbackEntity>>
 
-    @Query("UPDATE doctor_feedback SET isRead = 1 WHERE id = :id")
-    suspend fun markFeedbackAsRead(id: Long)
+    @Query("SELECT COUNT(*) FROM doctor_feedback WHERE elderId = :elderId AND isRead = 0")
+    fun getUnreadFeedbackCount(elderId: Long): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM doctor_feedback WHERE doctorId = :doctorId AND isAbnormal = 1")
+    fun getAbnormalFeedbackCount(doctorId: Long): Flow<Int>
+
+    @Query("UPDATE doctor_feedback SET isRead = 1 WHERE id = :feedbackId")
+    suspend fun markFeedbackAsRead(feedbackId: Long)
 } 
