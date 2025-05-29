@@ -38,6 +38,7 @@ sealed class Screen(val route: String) {
     object ElderHealthDetail : Screen("elder_health_detail/{elderId}/{doctorId}") {
         fun createRoute(elderId: String, doctorId: String) = "elder_health_detail/$elderId/$doctorId"
     }
+    object MedicationReminder : Screen("medication_reminder")
 }
 
 @Composable
@@ -120,13 +121,13 @@ fun NavGraph(
                         navController.navigate("health_record/$userId")
                     },
                     onMedication = {
-                        navController.navigate("notification/$userId")
+                        navController.navigate(Screen.MedicationReminder.route)
                     },
                     onAlerts = {
                         navController.navigate("notification/$userId")
                     },
                     onNotification = {
-                        navController.navigate("notification/$userId") // 这个是解决报错关键
+                        navController.navigate("notification/$userId")
                     },
                     onNavigateToElderFeedback = {
                         navController.navigate(Screen.ElderFeedback.createRoute(userId.toString()))
@@ -244,6 +245,12 @@ fun NavGraph(
             
             ElderFeedbackScreen(
                 elderId = elderId,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(Screen.MedicationReminder.route) {
+            MedicationReminderScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }

@@ -25,5 +25,5 @@ interface DoctorFeedbackDao {
     fun getAbnormalFeedbackCount(doctorId: Long): Flow<Int>
 
     @Query("UPDATE doctor_feedback SET isRead = 1 WHERE id = :feedbackId")
-    suspend fun markFeedbackAsRead(feedbackId: Long)
+    fun markFeedbackAsRead(feedbackId: Long)
 } 

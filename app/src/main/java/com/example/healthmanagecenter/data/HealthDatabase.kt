@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.example.healthmanagecenter.data.converter.TimeListConverter
 import com.example.healthmanagecenter.data.dao.AlertDao
 import com.example.healthmanagecenter.data.dao.HealthRecordDao
 import com.example.healthmanagecenter.data.dao.MedicationReminderDao
@@ -23,9 +25,10 @@ import com.example.healthmanagecenter.data.dao.DoctorFeedbackDao
         MedicationReminderEntity::class,
         DoctorFeedbackEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
+@TypeConverters(TimeListConverter::class)
 abstract class HealthDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun healthRecordDao(): HealthRecordDao

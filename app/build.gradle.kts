@@ -65,6 +65,13 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.5.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
+    // Gson for JSON serialization
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    // Flow and Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")

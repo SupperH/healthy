@@ -7,83 +7,16 @@ import com.example.healthmanagecenter.data.HealthDatabase
 import com.example.healthmanagecenter.data.entity.DoctorFeedbackEntity
 import com.example.healthmanagecenter.data.entity.HealthRecordEntity
 import com.example.healthmanagecenter.data.entity.MedicationReminderEntity
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
+import com.example.healthmanagecenter.data.dao.DoctorFeedbackDao
+import com.example.healthmanagecenter.data.dao.MedicationReminderDao
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-class NotificationViewModel(application: Application, private val userId: Long) : AndroidViewModel(application) {
-    private val db = HealthDatabase.getDatabase(application)
-    private val doctorFeedbackDao = db.doctorFeedbackDao()
-    private val medicationReminderDao = db.medicationReminderDao()
-
-    private val _uiState = MutableStateFlow(NotificationUiState())
-    val uiState: StateFlow<NotificationUiState> = _uiState.asStateFlow()
-
-    init { loadNotifications() }
-
-    fun loadNotifications() = viewModelScope.launch {
-        combine(
-            doctorFeedbackDao.getFeedbacksByElderId(userId),
-            medicationReminderDao.getRemindersByUserId(userId),
-            doctorFeedbackDao.getUnreadFeedbackCount(userId)
-        ) { feedbacks: List<DoctorFeedbackEntity>, reminders: List<MedicationReminderEntity>, unreadFeedbackCount: Int ->
-            val feedbackItems = feedbacks.map {
-                NotificationUiState.NotificationItem(
-                    id = it.id,
-                    type = NotificationUiState.Type.Feedback,
-                    title = "医生反馈",
-                    content = it.comment,
-                    timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(it.timestamp)),
-                    isRead = it.isRead
-                )
-            }
-            val reminderItems = reminders.map {
-                NotificationUiState.NotificationItem(
-                    id = it.reminderId,
-                    type = NotificationUiState.Type.Reminder,
-                    title = "用药提醒",
-                    content = "请在 ${it.reminderTime} 服用 ${it.medicineName}",
-                    timeStr = it.reminderTime,
-                    isRead = false // 可扩展为已读
-                )
-            }
-            
-            val allNotifications = (feedbackItems + reminderItems).sortedByDescending { it.timeStr }
-
-            NotificationUiState(
-                notifications = allNotifications,
-                unreadFeedbackCount = unreadFeedbackCount
-            )
-        }.collect { newState ->
-            _uiState.value = newState
-        }
-    }
-
-    fun markAsRead(item: NotificationUiState.NotificationItem) = viewModelScope.launch {
-        if (item.type == NotificationUiState.Type.Feedback) {
-            doctorFeedbackDao.markFeedbackAsRead(item.id)
-        }
-        // MedicationReminder 可扩展为已读
-        // loadNotifications() // 标记已读后，combine会自动更新
-    }
-
-    fun markAllFeedbackAsRead() = viewModelScope.launch {
-        doctorFeedbackDao.getFeedbacksByElderId(userId).firstOrNull()?.forEach {
-            if (!it.isRead) {
-                doctorFeedbackDao.markFeedbackAsRead(it.id)
-            }
-        }
-    }
-}
-
 data class NotificationUiState(
     val notifications: List<NotificationItem> = emptyList(),
-    val unreadFeedbackCount: Int = 0 // 未读评论数量
+    val unreadFeedbackCount: Int = 0
 ) {
     data class NotificationItem(
         val id: Long,
@@ -93,5 +26,70 @@ data class NotificationUiState(
         val timeStr: String,
         val isRead: Boolean
     )
-    enum class Type { Feedback, Reminder }
-} 
+
+    enum class Type {
+        Feedback,
+        Medication
+    }
+}
+
+class NotificationViewModel(application: Application, private val userId: Long) : AndroidViewModel(application) {
+    private val db = HealthDatabase.getDatabase(application)
+    private val doctorFeedbackDao = db.doctorFeedbackDao()
+    private val medicationReminderDao = db.medicationReminderDao()
+
+    private val _uiState = MutableStateFlow(NotificationUiState())
+    val uiState: StateFlow<NotificationUiState> = _uiState.asStateFlow()
+
+    init {
+        loadNotifications()
+    }
+
+    private fun loadNotifications() {
+        viewModelScope.launch {
+            combine(
+                doctorFeedbackDao.getFeedbacksByElderId(userId),
+                doctorFeedbackDao.getUnreadFeedbackCount(userId),
+                medicationReminderDao.getAllReminders()
+            ) { feedbacks, unreadCount, reminders ->
+                val feedbackItems = feedbacks.map {
+                    NotificationUiState.NotificationItem(
+                        id = it.id,
+                        type = NotificationUiState.Type.Feedback,
+                        title = "医生反馈",
+                        content = it.comment,
+                        timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+                            .format(it.timestamp),
+                        isRead = it.isRead
+                    )
+                }
+
+                val reminderItems = reminders.map {
+                    NotificationUiState.NotificationItem(
+                        id = it.id,
+                        type = NotificationUiState.Type.Medication,
+                        title = "用药提醒",
+                        content = "${it.name} - ${it.instructions}",
+                        timeStr = it.timeList.joinToString(", "),
+                        isRead = true
+                    )
+                }
+
+                NotificationUiState(
+                    notifications = (feedbackItems + reminderItems).sortedByDescending { it.timeStr },
+                    unreadFeedbackCount = unreadCount
+                )
+            }.collect { state ->
+                _uiState.value = state
+            }
+        }
+    }
+
+    fun markAsRead(item: NotificationUiState.NotificationItem) {
+        if (item.type == NotificationUiState.Type.Feedback) {
+            viewModelScope.launch {
+                doctorFeedbackDao.markFeedbackAsRead(item.id)
+            }
+        }
+    }
+}
