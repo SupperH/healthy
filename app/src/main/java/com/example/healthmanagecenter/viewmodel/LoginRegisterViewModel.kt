@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.example.healthmanagecenter.navigation.Screen
 
 data class LoginUiState(
     val name: String = "",
@@ -36,6 +37,23 @@ class LoginRegisterViewModel(application: Application) : AndroidViewModel(applic
 
     private val _currentUser = MutableStateFlow<UserEntity?>(null)
     val currentUser: StateFlow<UserEntity?> = _currentUser.asStateFlow()
+
+    val isUserLoggedIn: Boolean
+        get() = _currentUser.value != null
+
+    fun getStartDestinationBasedOnRole(): String {
+        return when (_currentUser.value?.role) {
+            "doctor" -> Screen.DoctorHome.createRoute(_currentUser.value!!.userId.toString())
+            "elder" -> {
+                if (_currentUser.value?.doctorId == null || _currentUser.value?.doctorId == 0L) {
+                     Screen.PickDoctor.createRoute(_currentUser.value!!.userId.toString())
+                } else {
+                     Screen.ElderHome.createRoute(_currentUser.value!!.userId.toString())
+                }
+            }
+            else -> Screen.Login.route
+        }
+    }
 
     fun updateLoginName(name: String) {
         _loginUiState.value = _loginUiState.value.copy(name = name)
@@ -95,7 +113,6 @@ class LoginRegisterViewModel(application: Application) : AndroidViewModel(applic
                     role = state.role
                 )
             )
-            // 注册成功后不自动登录，直接返回 true
             true
         } catch (e: Exception) {
             _registerUiState.value = state.copy(errorMessage = "Register failed: ${e.message}")

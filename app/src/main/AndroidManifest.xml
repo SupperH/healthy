@@ -32,7 +32,11 @@
         <receiver
             android:name=".receiver.MedicationReminderReceiver"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.example.healthmanagecenter.ACTION_SHOW_MEDICATION_REMINDER" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

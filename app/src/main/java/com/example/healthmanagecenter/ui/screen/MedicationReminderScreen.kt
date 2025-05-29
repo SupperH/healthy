@@ -1,6 +1,14 @@
 package com.example.healthmanagecenter.ui.screen
 
 import android.app.Application
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,6 +29,9 @@ import com.example.healthmanagecenter.data.entity.MedicationReminderEntity
 import com.example.healthmanagecenter.viewmodel.MedicationReminderViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import android.Manifest
+import androidx.core.content.ContextCompat
+import androidx.activity.ComponentActivity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,10 +39,62 @@ fun MedicationReminderScreen(
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current.applicationContext
+    val activity = LocalContext.current as ComponentActivity
     val viewModel: MedicationReminderViewModel = viewModel(factory = MedicationReminderViewModelFactory(context as Application))
     val reminders by viewModel.reminders.collectAsState(initial = emptyList())
     var showAddDialog by remember { mutableStateOf(false) }
     var editingReminder by remember { mutableStateOf<MedicationReminderEntity?>(null) }
+    var showNotificationPermissionDeniedDialog by remember { mutableStateOf(false) }
+
+    // Request POST_NOTIFICATIONS permission for Android 13+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val notificationPermissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+            onResult = { isGranted ->
+                if (!isGranted) {
+                    showNotificationPermissionDeniedDialog = true
+                }
+            }
+        )
+
+        LaunchedEffect(Unit) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    // Permission already granted
+                }
+                activity.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                    // Explain to user why permission is needed
+                    showNotificationPermissionDeniedDialog = true
+                }
+                else -> {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        }
+    }
+
+    // Request SCHEDULE_EXACT_ALARM permission for Android 12+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val alarmManager = context.getSystemService(android.app.AlarmManager::class.java)
+        val alarmPermissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+            onResult = { result ->
+                // Handle result if needed
+            }
+        )
+
+        LaunchedEffect(Unit) {
+            if (!alarmManager.canScheduleExactAlarms()) {
+                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                    data = Uri.fromParts("package", context.packageName, null)
+                }
+                alarmPermissionLauncher.launch(intent)
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -71,6 +134,7 @@ fun MedicationReminderScreen(
         ReminderDialog(
             onDismiss = { showAddDialog = false },
             onSave = { name, instructions, timeList ->
+                Log.d("MedicationReminderScreen", "Attempting to add reminder: $name, $instructions, $timeList")
                 viewModel.addReminder(name, instructions, timeList)
                 showAddDialog = false
             }
@@ -82,12 +146,38 @@ fun MedicationReminderScreen(
             reminder = reminder,
             onDismiss = { editingReminder = null },
             onSave = { name, instructions, timeList ->
+                Log.d("MedicationReminderScreen", "Attempting to update reminder: ${reminder.id}, $name, $instructions, $timeList")
                 viewModel.updateReminder(reminder.copy(
                     name = name,
                     instructions = instructions,
                     timeList = timeList
                 ))
                 editingReminder = null
+            }
+        )
+    }
+
+    if (showNotificationPermissionDeniedDialog) {
+        AlertDialog(
+            onDismissRequest = { showNotificationPermissionDeniedDialog = false },
+            title = { Text("通知权限被拒绝") },
+            text = { Text("用药提醒需要通知权限才能在系统任务栏中显示。请在设置中开启权限。") },
+            confirmButton = {
+                Button(onClick = { 
+                    showNotificationPermissionDeniedDialog = false
+                    // Navigate to app settings
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                    activity.startActivity(intent)
+                }) {
+                    Text("前往设置")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showNotificationPermissionDeniedDialog = false }) {
+                    Text("取消")
+                }
             }
         )
     }
@@ -309,8 +399,8 @@ fun TimePickerDialog(
                         Spacer(Modifier.height(8.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             IconButton(onClick = { 
-                                selectedMinute = (selectedMinute - 5 + 60) % 60 
-                            }) {
+                                selectedMinute = (selectedMinute - 1 + 60) % 60 
+                            }) { // 修改步长为1分钟
                                 Icon(Icons.Default.KeyboardArrowUp, contentDescription = "增加分钟")
                             }
                             Text(
@@ -318,8 +408,8 @@ fun TimePickerDialog(
                                 style = MaterialTheme.typography.headlineMedium
                             )
                             IconButton(onClick = { 
-                                selectedMinute = (selectedMinute + 5) % 60 
-                            }) {
+                                selectedMinute = (selectedMinute + 1) % 60 
+                            }) { // 修改步长为1分钟
                                 Icon(Icons.Default.KeyboardArrowDown, contentDescription = "减少分钟")
                             }
                         }
