@@ -56,7 +56,7 @@ class NotificationViewModel(application: Application, private val userId: Long) 
                     NotificationUiState.NotificationItem(
                         id = it.id,
                         type = NotificationUiState.Type.Feedback,
-                        title = "医生反馈",
+                        title = "Doctor Feedback",
                         content = it.comment,
                         timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
                             .format(it.timestamp),
@@ -68,7 +68,7 @@ class NotificationViewModel(application: Application, private val userId: Long) 
                     NotificationUiState.NotificationItem(
                         id = it.id,
                         type = NotificationUiState.Type.Medication,
-                        title = "用药提醒",
+                        title = "Medication Reminder",
                         content = "${it.name} - ${it.instructions}",
                         timeStr = it.timeList.joinToString(", "),
                         isRead = true

@@ -27,7 +27,8 @@ import java.util.*
 fun HealthRecordScreen(
     userId: Long,
     onBack: () -> Unit,
-    onNotification: () -> Unit
+    onNotification: () -> Unit,
+    onNavigateToHealthTrend: (Long) -> Unit
 ) {
     val context = LocalContext.current.applicationContext
     val viewModel: HealthRecordViewModel = viewModel(factory = object : androidx.lifecycle.ViewModelProvider.Factory {
@@ -66,6 +67,13 @@ fun HealthRecordScreen(
             HealthInputCard(uiState, viewModel)
             Spacer(Modifier.height(16.dp))
             HealthAnalysisCard(uiState)
+            Spacer(Modifier.height(16.dp))
+            Button(
+                onClick = { onNavigateToHealthTrend(userId) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("View Health Trend Chart")
+            }
         }
     }
 }
@@ -158,7 +166,7 @@ fun HealthAnalysisCard(uiState: HealthRecordUiState) {
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            // TODO: 画趋势图（可用Accompanist或MPAndroidChart Compose版）
+            // TODO: Draw trend chart (can use Accompanist or MPAndroidChart Compose version)
             if (uiState.doctorComment.isNotEmpty()) {
                 Divider(Modifier.padding(vertical = 8.dp))
                 Text("Doctor's Comment:", style = MaterialTheme.typography.titleSmall)

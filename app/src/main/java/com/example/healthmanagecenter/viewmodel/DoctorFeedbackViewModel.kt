@@ -8,6 +8,7 @@ import com.example.healthmanagecenter.data.entity.DoctorFeedbackEntity
 import com.example.healthmanagecenter.data.entity.HealthRecordEntity
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 
 class DoctorFeedbackViewModel(application: Application) : AndroidViewModel(application) {
     private val doctorFeedbackDao = HealthDatabase.getDatabase(application).doctorFeedbackDao()
@@ -55,8 +56,10 @@ class DoctorFeedbackViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    suspend fun markFeedbackAsRead(feedbackId: Long) {
-        doctorFeedbackDao.markFeedbackAsRead(feedbackId)
+    fun markFeedbackAsRead(feedbackId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            doctorFeedbackDao.markFeedbackAsRead(feedbackId)
+        }
     }
 
     fun checkHealthRecordAbnormal(record: HealthRecordEntity): Pair<Boolean, String?> {

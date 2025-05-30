@@ -39,6 +39,9 @@ sealed class Screen(val route: String) {
         fun createRoute(elderId: String, doctorId: String) = "elder_health_detail/$elderId/$doctorId"
     }
     object MedicationReminder : Screen("medication_reminder")
+    object HealthTrend : Screen("health_trend/{userId}") {
+        fun createRoute(userId: String) = "health_trend/$userId"
+    }
 }
 
 @Composable
@@ -180,7 +183,21 @@ fun NavGraph(
             HealthRecordScreen(
                 userId = userId,
                 onBack = { navController.popBackStack() },
-                onNotification = { navController.navigate("notification/$userId") }
+                onNotification = { navController.navigate("notification/$userId") },
+                onNavigateToHealthTrend = { userId ->
+                    navController.navigate(Screen.HealthTrend.createRoute(userId.toString()))
+                }
+            )
+        }
+
+        composable(
+            route = Screen.HealthTrend.route,
+            arguments = listOf(navArgument("userId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getLong("userId") ?: return@composable
+            HealthTrendScreen(
+                userId = userId,
+                onBack = { navController.popBackStack() }
             )
         }
 

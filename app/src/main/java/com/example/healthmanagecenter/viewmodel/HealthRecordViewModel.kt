@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.coroutines.flow.Flow
 
 class HealthRecordViewModel(application: Application, private val userId: Long) : AndroidViewModel(application) {
     private val db = HealthDatabase.getDatabase(application)
@@ -20,6 +21,16 @@ class HealthRecordViewModel(application: Application, private val userId: Long) 
 
     private val _uiState = MutableStateFlow(HealthRecordUiState())
     val uiState: StateFlow<HealthRecordUiState> = _uiState.asStateFlow()
+
+    // Add Flow for recent 30 days health records
+    val recent30DaysHealthRecords: Flow<List<HealthRecordEntity>> = healthRecordDao.getHealthRecordsByTimeRange(
+        userId = userId,
+        startTime = get30DaysAgoMillis(),
+        endTime = System.currentTimeMillis()
+    )
+
+    // Add Flow for latest health record
+    val latestHealthRecord: Flow<HealthRecordEntity?> = healthRecordDao.getLatestRecord(userId)
 
     init { loadTodayRecord() }
 
@@ -89,6 +100,17 @@ class HealthRecordViewModel(application: Application, private val userId: Long) 
 
     private fun getTodayMillis(): Long {
         val cal = Calendar.getInstance()
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        return cal.timeInMillis
+    }
+
+    private fun get30DaysAgoMillis(): Long {
+        val cal = Calendar.getInstance()
+        cal.timeInMillis = System.currentTimeMillis()
+        cal.add(Calendar.DAY_OF_MONTH, -30)
         cal.set(Calendar.HOUR_OF_DAY, 0)
         cal.set(Calendar.MINUTE, 0)
         cal.set(Calendar.SECOND, 0)

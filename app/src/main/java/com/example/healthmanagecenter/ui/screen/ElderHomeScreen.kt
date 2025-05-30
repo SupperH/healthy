@@ -25,8 +25,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import android.app.Application
 import androidx.compose.ui.platform.LocalContext
+import com.example.healthmanagecenter.data.entity.HealthRecordEntity
 import com.example.healthmanagecenter.viewmodel.NotificationViewModel
 import com.example.healthmanagecenter.ui.components.NotificationBell
+import com.example.healthmanagecenter.viewmodel.HealthRecordViewModel
+import com.example.healthmanagecenter.ui.components.HealthMetricsOverviewCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +54,13 @@ fun ElderHomeScreen(
         }
     })
     val notificationUiState by notificationViewModel.uiState.collectAsState()
+
+    val healthRecordViewModel: HealthRecordViewModel = viewModel(factory = object : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return HealthRecordViewModel(context as Application, userId) as T
+        }
+    })
+    val latestHealthRecord by healthRecordViewModel.latestHealthRecord.collectAsState(initial = null)
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -107,7 +117,7 @@ fun ElderHomeScreen(
                     }
                 }
                 Spacer(Modifier.height(16.dp))
-                // 功能卡片区
+                // Function card area
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     modifier = Modifier.fillMaxWidth()
@@ -116,6 +126,9 @@ fun ElderHomeScreen(
                     FeatureCard("Medication", Icons.Default.Medication, onMedication, Color(0xFF2196F3))
                     FeatureCard("Doctor Feedback", Icons.Default.Feedback, onNavigateToElderFeedback, Color(0xFF1976D2))
                 }
+                Spacer(Modifier.height(16.dp))
+                // Health Metrics Chart
+                HealthMetricsOverviewCard(latestRecord = latestHealthRecord)
             }
         }
     }

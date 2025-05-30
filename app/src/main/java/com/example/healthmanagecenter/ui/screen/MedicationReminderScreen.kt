@@ -99,15 +99,15 @@ fun MedicationReminderScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("用药提醒") },
+                title = { Text("Medication Reminder") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
                     IconButton(onClick = { showAddDialog = true }) {
-                        Icon(Icons.Default.Add, contentDescription = "添加提醒")
+                        Icon(Icons.Default.Add, contentDescription = "Add Reminder")
                     }
                 }
             )
@@ -160,8 +160,8 @@ fun MedicationReminderScreen(
     if (showNotificationPermissionDeniedDialog) {
         AlertDialog(
             onDismissRequest = { showNotificationPermissionDeniedDialog = false },
-            title = { Text("通知权限被拒绝") },
-            text = { Text("用药提醒需要通知权限才能在系统任务栏中显示。请在设置中开启权限。") },
+            title = { Text("Notification Permission Denied") },
+            text = { Text("Medication reminders require notification permission to display in the system taskbar. Please enable the permission in settings.") },
             confirmButton = {
                 Button(onClick = { 
                     showNotificationPermissionDeniedDialog = false
@@ -171,12 +171,12 @@ fun MedicationReminderScreen(
                     }
                     activity.startActivity(intent)
                 }) {
-                    Text("前往设置")
+                    Text("Go to Settings")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showNotificationPermissionDeniedDialog = false }) {
-                    Text("取消")
+                    Text("Cancel")
                 }
             }
         )
@@ -208,10 +208,10 @@ fun ReminderCard(
                 )
                 Row {
                     IconButton(onClick = onEdit) {
-                        Icon(Icons.Default.Edit, contentDescription = "编辑")
+                        Icon(Icons.Default.Edit, contentDescription = "Edit")
                     }
                     IconButton(onClick = onDelete) {
-                        Icon(Icons.Default.Delete, contentDescription = "删除")
+                        Icon(Icons.Default.Delete, contentDescription = "Delete")
                     }
                 }
             }
@@ -261,7 +261,7 @@ fun ReminderDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (reminder == null) "添加用药提醒" else "编辑用药提醒") },
+        title = { Text(if (reminder == null) "Add Medication Reminder" else "Edit Medication Reminder") },
         text = {
             Column(
                 modifier = Modifier
@@ -272,14 +272,14 @@ fun ReminderDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("药品名称") },
+                    label = { Text("Medicine Name") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 
                 OutlinedTextField(
                     value = instructions,
                     onValueChange = { instructions = it },
-                    label = { Text("服用说明") },
+                    label = { Text("Dosage Instructions") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 
@@ -294,7 +294,7 @@ fun ReminderDialog(
                             trailingIcon = {
                                 Icon(
                                     Icons.Default.Close,
-                                    contentDescription = "移除",
+                                    contentDescription = "Remove",
                                     modifier = Modifier.size(16.dp)
                                 )
                             }
@@ -308,7 +308,7 @@ fun ReminderDialog(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Spacer(Modifier.width(4.dp))
-                    Text("添加时间")
+                    Text("Add Time")
                 }
             }
         },
@@ -321,12 +321,12 @@ fun ReminderDialog(
                 },
                 enabled = name.isNotBlank() && instructions.isNotBlank() && timeList.isNotEmpty()
             ) {
-                Text("保存")
+                Text("Save")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text("Cancel")
             }
         }
     )
@@ -356,7 +356,7 @@ fun TimePickerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("选择时间") },
+        title = { Text("Select Time") },
         text = {
             Column(
                 modifier = Modifier
@@ -371,13 +371,13 @@ fun TimePickerDialog(
                 ) {
                     // 小时选择
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("小时", style = MaterialTheme.typography.bodyMedium)
+                        Text("Hour", style = MaterialTheme.typography.bodyMedium)
                         Spacer(Modifier.height(8.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             IconButton(onClick = { 
                                 selectedHour = (selectedHour - 1 + 24) % 24 
                             }) {
-                                Icon(Icons.Default.KeyboardArrowUp, contentDescription = "增加小时")
+                                Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Increase Hour")
                             }
                             Text(
                                 text = String.format("%02d", selectedHour),
@@ -386,7 +386,7 @@ fun TimePickerDialog(
                             IconButton(onClick = { 
                                 selectedHour = (selectedHour + 1) % 24 
                             }) {
-                                Icon(Icons.Default.KeyboardArrowDown, contentDescription = "减少小时")
+                                Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Decrease Hour")
                             }
                         }
                     }
@@ -395,13 +395,13 @@ fun TimePickerDialog(
 
                     // 分钟选择
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("分钟", style = MaterialTheme.typography.bodyMedium)
+                        Text("Minute", style = MaterialTheme.typography.bodyMedium)
                         Spacer(Modifier.height(8.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             IconButton(onClick = { 
                                 selectedMinute = (selectedMinute - 1 + 60) % 60 
                             }) { // 修改步长为1分钟
-                                Icon(Icons.Default.KeyboardArrowUp, contentDescription = "增加分钟")
+                                Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Increase Minute")
                             }
                             Text(
                                 text = String.format("%02d", selectedMinute),
@@ -410,7 +410,7 @@ fun TimePickerDialog(
                             IconButton(onClick = { 
                                 selectedMinute = (selectedMinute + 1) % 60 
                             }) { // 修改步长为1分钟
-                                Icon(Icons.Default.KeyboardArrowDown, contentDescription = "减少分钟")
+                                Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Decrease Minute")
                             }
                         }
                     }
@@ -421,12 +421,12 @@ fun TimePickerDialog(
             Button(
                 onClick = { onTimeSelected(selectedHour, selectedMinute) }
             ) {
-                Text("确定")
+                Text("OK")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text("Cancel")
             }
         }
     )

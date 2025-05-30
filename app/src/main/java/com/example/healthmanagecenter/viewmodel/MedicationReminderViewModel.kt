@@ -65,8 +65,8 @@ class MedicationReminderViewModel(
             true // Permissions not needed on older versions
         }
 
-        // setAlarmClock 不需要 SCHEDULE_EXACT_ALARM 权限，但需要设置全屏 Intent（如果需要锁屏提醒）
-        // 这里我们只检查 POST_NOTIFICATIONS 权限，因为发送通知需要它。
+        // setAlarmClock does not require SCHEDULE_EXACT_ALARM permission, but needs to set full-screen Intent (if lock screen reminder is needed)
+        // Here we only check POST_NOTIFICATIONS permission, because sending notifications requires it.
         if (!postNotificationsGranted) {
             Log.w("MedicationReminder", "Notification permission not granted. Cannot schedule reminder.")
             return
@@ -111,8 +111,8 @@ class MedicationReminderViewModel(
                  Log.d("MedicationReminder", "SCHEDULE_EXACT_ALARM not required below API 31 (API ${Build.VERSION.SDK_INT})")
             }
 
-            // 使用 setAlarmClock 来调度闹钟
-            // 可以选择添加一个 fullScreenIntent 用于锁屏提醒
+            // Use setAlarmClock to schedule alarm
+            // Optionally add a fullScreenIntent for lock screen reminders
             val alarmClockInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 AlarmManager.AlarmClockInfo(calendar.timeInMillis, null)
             } else {

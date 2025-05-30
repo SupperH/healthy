@@ -130,7 +130,7 @@ fun ElderBriefCard(elder: ElderBrief, onElderClick: (Long) -> Unit, onHealthDeta
     }
 }
 
-// ElderBrief 数据类
+// ElderBrief data class
 data class ElderBrief(
     val userId: Long,
     val name: String,
@@ -187,7 +187,7 @@ private fun ElderCard(
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = "联系电话：${elder.phone}",
+                text = "Phone: ${elder.phone}",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(top = 4.dp)
             )

@@ -29,4 +29,7 @@ interface HealthRecordDao {
 
     @Query("SELECT * FROM health_records WHERE recordId = :recordId")
     suspend fun getHealthRecordById(recordId: Long): HealthRecordEntity?
+
+    @Query("SELECT * FROM health_records WHERE userId = :userId ORDER BY timestamp DESC LIMIT 1")
+    fun getLatestRecord(userId: Long): Flow<HealthRecordEntity?>
 } 

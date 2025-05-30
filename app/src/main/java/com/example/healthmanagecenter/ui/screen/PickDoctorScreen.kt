@@ -11,10 +11,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import com.example.healthmanagecenter.data.entity.UserEntity
 import com.example.healthmanagecenter.viewmodel.ElderHomeViewModel
 import com.example.healthmanagecenter.viewmodel.LoginRegisterViewModel
 import kotlinx.coroutines.launch
+import com.example.healthmanagecenter.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +35,7 @@ fun PickDoctorScreen(
             .padding(16.dp)
     ) {
         Text(
-            text = "Select Your Doctor",
+            text = stringResource(R.string.select_your_doctor_title),
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -72,11 +74,11 @@ private fun DoctorCard(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(16.dp)
         ) {
-            Icon(Icons.Default.Person, contentDescription = "Doctor", modifier = Modifier.size(40.dp))
+            Icon(Icons.Default.Person, contentDescription = stringResource(R.string.doctor_icon_description), modifier = Modifier.size(40.dp))
             Spacer(Modifier.width(16.dp))
             Column {
                 Text(doctor.name, style = MaterialTheme.typography.titleMedium)
-                Text("Phone: ${doctor.phone}", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.doctor_phone_label, doctor.phone), style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
