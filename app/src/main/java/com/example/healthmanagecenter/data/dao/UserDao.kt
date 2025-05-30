@@ -26,4 +26,7 @@ interface UserDao {
 
     @Query("SELECT * FROM users WHERE role = 'elder' AND doctorId = :doctorId")
     fun getEldersByDoctorId(doctorId: Long): Flow<List<UserEntity>>
+
+    @Query("SELECT * FROM users WHERE name = :name AND email = :email LIMIT 1")
+    suspend fun getUserByNameAndEmail(name: String, email: String): UserEntity?
 } 

@@ -22,7 +22,16 @@ data class RegisterUiState(
     val name: String = "",
     val phone: String = "",
     val password: String = "",
+    val email: String = "",
+    val dateOfBirth: Long = 0,
     val role: String = "elder",
+    val errorMessage: String = ""
+)
+
+data class ResetPasswordUiState(
+    val name: String = "",
+    val email: String = "",
+    val newPassword: String = "",
     val errorMessage: String = ""
 )
 
@@ -34,6 +43,9 @@ class LoginRegisterViewModel(application: Application) : AndroidViewModel(applic
 
     private val _registerUiState = MutableStateFlow(RegisterUiState())
     val registerUiState: StateFlow<RegisterUiState> = _registerUiState.asStateFlow()
+
+    private val _resetPasswordUiState = MutableStateFlow(ResetPasswordUiState())
+    val resetPasswordUiState: StateFlow<ResetPasswordUiState> = _resetPasswordUiState.asStateFlow()
 
     private val _currentUser = MutableStateFlow<UserEntity?>(null)
     val currentUser: StateFlow<UserEntity?> = _currentUser.asStateFlow()
@@ -83,6 +95,26 @@ class LoginRegisterViewModel(application: Application) : AndroidViewModel(applic
         _registerUiState.value = _registerUiState.value.copy(role = role)
     }
 
+    fun updateRegisterEmail(email: String) {
+        _registerUiState.value = _registerUiState.value.copy(email = email)
+    }
+
+    fun updateRegisterDateOfBirth(dateOfBirth: Long) {
+        _registerUiState.value = _registerUiState.value.copy(dateOfBirth = dateOfBirth)
+    }
+
+    fun updateResetPasswordName(name: String) {
+        _resetPasswordUiState.value = _resetPasswordUiState.value.copy(name = name)
+    }
+
+    fun updateResetPasswordEmail(email: String) {
+        _resetPasswordUiState.value = _resetPasswordUiState.value.copy(email = email)
+    }
+
+    fun updateResetPasswordNewPassword(newPassword: String) {
+        _resetPasswordUiState.value = _resetPasswordUiState.value.copy(newPassword = newPassword)
+    }
+
     suspend fun login(): Triple<Long?, Boolean, Boolean> {
         val state = loginUiState.value
         return try {
@@ -105,17 +137,63 @@ class LoginRegisterViewModel(application: Application) : AndroidViewModel(applic
     suspend fun register(): Boolean {
         val state = registerUiState.value
         return try {
+            // 验证输入
+            if (state.name.isBlank() || state.phone.isBlank() || state.password.isBlank() || 
+                state.email.isBlank() || state.dateOfBirth == 0L) {
+                _registerUiState.value = state.copy(errorMessage = "所有字段都是必填的")
+                return false
+            }
+
+            // 验证邮箱格式
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(state.email).matches()) {
+                _registerUiState.value = state.copy(errorMessage = "邮箱格式不正确")
+                return false
+            }
+
             val userId = userDao.insertUser(
                 UserEntity(
                     name = state.name,
                     phone = state.phone,
                     password = state.password,
+                    email = state.email,
+                    dateOfBirth = state.dateOfBirth,
                     role = state.role
                 )
             )
             true
         } catch (e: Exception) {
-            _registerUiState.value = state.copy(errorMessage = "Register failed: ${e.message}")
+            _registerUiState.value = state.copy(errorMessage = "注册失败: ${e.message}")
+            false
+        }
+    }
+
+    suspend fun resetPassword(): Boolean {
+        val state = resetPasswordUiState.value
+        return try {
+            // 验证输入
+            if (state.name.isBlank() || state.email.isBlank() || state.newPassword.isBlank()) {
+                _resetPasswordUiState.value = state.copy(errorMessage = "所有字段都是必填的")
+                return false
+            }
+
+            // 验证邮箱格式
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(state.email).matches()) {
+                _resetPasswordUiState.value = state.copy(errorMessage = "邮箱格式不正确")
+                return false
+            }
+
+            // 查找用户
+            val user = userDao.getUserByNameAndEmail(state.name, state.email)
+            if (user == null) {
+                _resetPasswordUiState.value = state.copy(errorMessage = "用户名或邮箱不正确")
+                return false
+            }
+
+            // 更新密码
+            userDao.updateUser(user.copy(password = state.newPassword))
+            true
+        } catch (e: Exception) {
+            _resetPasswordUiState.value = state.copy(errorMessage = "重置密码失败: ${e.message}")
             false
         }
     }

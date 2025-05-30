@@ -11,5 +11,7 @@ data class UserEntity(
     val phone: String,
     val role: String, // "doctor" or "elder"
     val password: String,
+    val email: String,
+    val dateOfBirth: Long,
     val doctorId: Long? = null // Only for elders
 ) 

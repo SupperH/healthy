@@ -20,8 +20,10 @@ fun LoginScreen(
     viewModel: LoginRegisterViewModel = viewModel()
 ) {
     val loginState by viewModel.loginUiState.collectAsState()
+    val resetPasswordState by viewModel.resetPasswordUiState.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
     val scope = rememberCoroutineScope()
+    var showResetPasswordDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(currentUser) {
         currentUser?.let { user ->
@@ -37,7 +39,7 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Login",
+            text = "登录",
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 32.dp)
         )
@@ -45,7 +47,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = loginState.name,
             onValueChange = { viewModel.updateLoginName(it) },
-            label = { Text("Name") },
+            label = { Text("用户名") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -54,7 +56,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = loginState.password,
             onValueChange = { viewModel.updateLoginPassword(it) },
-            label = { Text("Password") },
+            label = { Text("密码") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier
                 .fillMaxWidth()
@@ -75,7 +77,7 @@ fun LoginScreen(
                     selected = loginState.role == "elder",
                     onClick = { viewModel.updateLoginRole("elder") }
                 )
-                Text("Elder")
+                Text("老人")
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -84,7 +86,7 @@ fun LoginScreen(
                     selected = loginState.role == "doctor",
                     onClick = { viewModel.updateLoginRole("doctor") }
                 )
-                Text("Doctor")
+                Text("医生")
             }
         }
 
@@ -109,13 +111,91 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
         ) {
-            Text("Login")
+            Text("登录")
         }
 
-        TextButton(
-            onClick = onNavigateToRegister
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("No account? Register here")
+            TextButton(
+                onClick = onNavigateToRegister
+            ) {
+                Text("没有账号？点击注册")
+            }
+            TextButton(
+                onClick = { showResetPasswordDialog = true }
+            ) {
+                Text("忘记密码？")
+            }
         }
+    }
+
+    if (showResetPasswordDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetPasswordDialog = false },
+            title = { Text("重置密码") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = resetPasswordState.name,
+                        onValueChange = { viewModel.updateResetPasswordName(it) },
+                        label = { Text("用户名") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = resetPasswordState.email,
+                        onValueChange = { viewModel.updateResetPasswordEmail(it) },
+                        label = { Text("邮箱") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = resetPasswordState.newPassword,
+                        onValueChange = { viewModel.updateResetPasswordNewPassword(it) },
+                        label = { Text("新密码") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    )
+
+                    if (resetPasswordState.errorMessage.isNotEmpty()) {
+                        Text(
+                            text = resetPasswordState.errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        scope.launch {
+                            val success = viewModel.resetPassword()
+                            if (success) {
+                                showResetPasswordDialog = false
+                            }
+                        }
+                    }
+                ) {
+                    Text("重置")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showResetPasswordDialog = false }
+                ) {
+                    Text("取消")
+                }
+            }
+        )
     }
 } 
