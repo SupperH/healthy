@@ -32,4 +32,7 @@ interface HealthRecordDao {
 
     @Query("SELECT * FROM health_records WHERE userId = :userId ORDER BY timestamp DESC LIMIT 1")
     fun getLatestRecord(userId: Long): Flow<HealthRecordEntity?>
+
+    @Query("SELECT COUNT(*) FROM health_records WHERE userId IN (:elderIds) AND isAnalyzed = 1 AND hasFeedback = 0")
+    fun getUnhandledAbnormalHealthRecordsCount(elderIds: List<Long>): Flow<Int>
 } 

@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import com.example.healthmanagecenter.ui.screen.ElderHealthDetailScreen
+import com.example.healthmanagecenter.viewmodel.DoctorHomeViewModel
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
@@ -149,6 +150,11 @@ fun NavGraph(
             val viewModel: com.example.healthmanagecenter.viewmodel.LoginRegisterViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
             val doctor by viewModel.getUserByIdState(userId).collectAsState()
             val elders by viewModel.getEldersByDoctorIdState(userId).collectAsState()
+            
+            // Instantiate DoctorHomeViewModel and collect alertsCount
+            val doctorHomeViewModel: DoctorHomeViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+            val alertsCount by doctorHomeViewModel.getUnhandledAlertsCount(userId).collectAsState(initial = 0)
+
             DoctorHomeScreen(
                 userId = userId,
                 userName = doctor?.name ?: "",
@@ -160,7 +166,7 @@ fun NavGraph(
                         healthStatus = "-" // 可补充健康状态
                     )
                 },
-                alertsCount = 0, // 可补充异常提醒数量
+                alertsCount = alertsCount, // Use the collected alertsCount
                 onLogout = {
                     viewModel.logout()
                     navController.navigate(Screen.Login.route) { popUpTo(0) }

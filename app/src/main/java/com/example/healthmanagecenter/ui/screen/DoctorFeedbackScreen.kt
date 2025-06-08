@@ -44,6 +44,8 @@ fun DoctorFeedbackScreen(
     var showErrorMessage by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
+    val feedbacks by viewModel.getFeedbacksByElderId(elderId).collectAsState(initial = emptyList())
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -153,6 +155,20 @@ fun DoctorFeedbackScreen(
                             Text("Submit Feedback")
                         }
                     }
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // Display existing feedbacks
+            Text(
+                text = "Previous Feedbacks",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                items(feedbacks) { feedback ->
+                    FeedbackCard(feedback = feedback, onClick = {})
                 }
             }
         }

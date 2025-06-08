@@ -54,7 +54,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = loginState.name,
             onValueChange = { viewModel.updateLoginName(it) },
-            label = { Text("用户名", color = Color.Gray) },
+            label = { Text("Username", color = Color.Gray) },
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFFF57C00), // Orange
@@ -69,7 +69,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = loginState.password,
             onValueChange = { viewModel.updateLoginPassword(it) },
-            label = { Text("密码", color = Color.Gray) },
+            label = { Text("Password", color = Color.Gray) },
             visualTransformation = PasswordVisualTransformation(),
             shape = RoundedCornerShape(8.dp),
              colors = OutlinedTextFieldDefaults.colors(
@@ -97,7 +97,7 @@ fun LoginScreen(
                     onClick = { viewModel.updateLoginRole("elder") },
                     colors = RadioButtonDefaults.colors(selectedColor = Color(0xFFF57C00))
                 )
-                Text("老人")
+                Text("Elder")
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -107,7 +107,7 @@ fun LoginScreen(
                     onClick = { viewModel.updateLoginRole("doctor") },
                      colors = RadioButtonDefaults.colors(selectedColor = Color(0xFFF57C00))
                 )
-                Text("医生")
+                Text("Doctor")
             }
         }
 
@@ -134,7 +134,7 @@ fun LoginScreen(
             shape = RoundedCornerShape(24.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFB74D))
         ) {
-            Text("登录", color = Color.White)
+            Text("Login", color = Color.White)
         }
 
         Row(
@@ -144,12 +144,12 @@ fun LoginScreen(
             TextButton(
                 onClick = onNavigateToRegister
             ) {
-                Text("没有账号？点击注册", color = Color(0xFFF57C00))
+                Text("No account? Click to register", color = Color(0xFFF57C00))
             }
             TextButton(
                 onClick = { showResetPasswordDialog = true }
             ) {
-                Text("忘记密码？", color = Color(0xFFF57C00))
+                Text("Forgot password?", color = Color(0xFFF57C00))
             }
         }
     }
@@ -157,13 +157,13 @@ fun LoginScreen(
     if (showResetPasswordDialog) {
         AlertDialog(
             onDismissRequest = { showResetPasswordDialog = false },
-            title = { Text("重置密码") },
+            title = { Text("Reset Password") },
             text = {
                 Column {
                     OutlinedTextField(
                         value = resetPasswordState.name,
                         onValueChange = { viewModel.updateResetPasswordName(it) },
-                        label = { Text("用户名") },
+                        label = { Text("Username") },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
@@ -172,7 +172,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = resetPasswordState.email,
                         onValueChange = { viewModel.updateResetPasswordEmail(it) },
-                        label = { Text("邮箱") },
+                        label = { Text("Email") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -182,7 +182,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = resetPasswordState.newPassword,
                         onValueChange = { viewModel.updateResetPasswordNewPassword(it) },
-                        label = { Text("新密码") },
+                        label = { Text("New Password") },
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -209,14 +209,14 @@ fun LoginScreen(
                         }
                     }
                 ) {
-                    Text("重置")
+                    Text("Reset")
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { showResetPasswordDialog = false }
                 ) {
-                    Text("取消")
+                    Text("Cancel")
                 }
             }
         )

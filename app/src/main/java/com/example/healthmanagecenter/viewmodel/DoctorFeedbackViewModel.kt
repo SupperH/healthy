@@ -22,10 +22,6 @@ class DoctorFeedbackViewModel(application: Application) : AndroidViewModel(appli
         return doctorFeedbackDao.getUnreadFeedbackCount(elderId)
     }
 
-    fun getAbnormalFeedbackCount(doctorId: Long): Flow<Int> {
-        return doctorFeedbackDao.getAbnormalFeedbackCount(doctorId)
-    }
-
     suspend fun addFeedback(
         elderId: Long,
         doctorId: Long,

@@ -60,8 +60,17 @@ class DoctorHomeViewModel(application: Application) : AndroidViewModel(applicati
         return alertDao.getAlertsByDoctorId(doctorId)
     }
 
-    fun getAbnormalFeedbackCount(doctorId: Long): Flow<Int> {
-        return doctorFeedbackDao.getAbnormalFeedbackCount(doctorId)
+    fun getUnhandledAlertsCount(doctorId: Long): Flow<Int> = flow {
+        userDao.getEldersByDoctorId(doctorId).collect { elders ->
+            val elderIds = elders.map { it.userId }
+            if (elderIds.isNotEmpty()) {
+                healthRecordDao.getUnhandledAbnormalHealthRecordsCount(elderIds).collect { count ->
+                    emit(count)
+                }
+            } else {
+                emit(0)
+            }
+        }
     }
 
     suspend fun addFeedback(

@@ -66,7 +66,7 @@ fun RegisterScreen(
         OutlinedTextField(
             value = registerState.name,
             onValueChange = { viewModel.updateRegisterName(it) },
-            label = { Text("用户名", color = Color.Gray) },
+            label = { Text("Username", color = Color.Gray) },
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFFF57C00), // Orange
@@ -81,7 +81,7 @@ fun RegisterScreen(
         OutlinedTextField(
             value = registerState.phone,
             onValueChange = { viewModel.updateRegisterPhone(it) },
-            label = { Text("手机号", color = Color.Gray) },
+            label = { Text("Phone Number", color = Color.Gray) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -97,7 +97,7 @@ fun RegisterScreen(
         OutlinedTextField(
             value = registerState.email,
             onValueChange = { viewModel.updateRegisterEmail(it) },
-            label = { Text("邮箱", color = Color.Gray) },
+            label = { Text("Email", color = Color.Gray) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -116,11 +116,11 @@ fun RegisterScreen(
                     .format(Date(registerState.dateOfBirth))
             } else "",
             onValueChange = { },
-            label = { Text("出生日期", color = Color.Gray) },
+            label = { Text("Date of Birth", color = Color.Gray) },
             readOnly = true,
             trailingIcon = {
                 IconButton(onClick = { showDatePicker = true }) {
-                    Icon(Icons.Default.DateRange, contentDescription = "选择日期")
+                    Icon(Icons.Default.DateRange, contentDescription = "Select Date")
                 }
             },
             shape = RoundedCornerShape(8.dp),
@@ -137,7 +137,7 @@ fun RegisterScreen(
         OutlinedTextField(
             value = registerState.password,
             onValueChange = { viewModel.updateRegisterPassword(it) },
-            label = { Text("密码", color = Color.Gray) },
+            label = { Text("Password", color = Color.Gray) },
             visualTransformation = PasswordVisualTransformation(),
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -165,7 +165,7 @@ fun RegisterScreen(
                     onClick = { viewModel.updateRegisterRole("elder") },
                     colors = RadioButtonDefaults.colors(selectedColor = Color(0xFFF57C00))
                 )
-                Text("老人")
+                Text("Elder")
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -175,7 +175,7 @@ fun RegisterScreen(
                     onClick = { viewModel.updateRegisterRole("doctor") },
                     colors = RadioButtonDefaults.colors(selectedColor = Color(0xFFF57C00))
                 )
-                Text("医生")
+                Text("Doctor")
             }
         }
 
@@ -200,13 +200,13 @@ fun RegisterScreen(
             shape = RoundedCornerShape(24.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFB74D))
         ) {
-            Text("注册", color = Color.White)
+            Text("Register", color = Color.White)
         }
 
         TextButton(
             onClick = onNavigateBack
         ) {
-            Text("已有账号？返回登录", color = Color(0xFFF57C00))
+            Text("Already have an account? Back to login", color = Color(0xFFF57C00))
         }
     }
 
@@ -227,7 +227,7 @@ fun RegisterScreen(
                         showDatePicker = false
                     }
                 ) {
-                    Text("确定")
+                    Text("Confirm")
                 }
             },
             dismissButton = {
@@ -236,14 +236,14 @@ fun RegisterScreen(
                         showDatePicker = false
                     }
                 ) {
-                    Text("取消")
+                    Text("Cancel")
                 }
             }
         ) {
             DatePicker(
                 state = datePickerState,
-                title = { Text("选择出生日期") },
-                headline = { Text("选择出生日期") },
+                title = { Text("Select Date of Birth") },
+                headline = { Text("Select Date of Birth") },
                 showModeToggle = false
             )
         }

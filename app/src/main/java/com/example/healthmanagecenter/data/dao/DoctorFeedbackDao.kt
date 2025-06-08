@@ -21,9 +21,6 @@ interface DoctorFeedbackDao {
     @Query("SELECT COUNT(*) FROM doctor_feedback WHERE elderId = :elderId AND isRead = 0")
     fun getUnreadFeedbackCount(elderId: Long): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM doctor_feedback WHERE doctorId = :doctorId AND isAbnormal = 1")
-    fun getAbnormalFeedbackCount(doctorId: Long): Flow<Int>
-
     @Query("UPDATE doctor_feedback SET isRead = 1 WHERE id = :feedbackId")
     fun markFeedbackAsRead(feedbackId: Long)
 } 
