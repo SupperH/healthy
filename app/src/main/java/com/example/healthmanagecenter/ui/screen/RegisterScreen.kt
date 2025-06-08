@@ -25,6 +25,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.DatePickerDialog
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,20 +52,27 @@ fun RegisterScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .background(Color(0xFFFFF9F0))
+            .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "注册",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 32.dp)
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = "App Logo",
+            modifier = Modifier.size(120.dp).padding(bottom = 32.dp)
         )
 
         OutlinedTextField(
             value = registerState.name,
             onValueChange = { viewModel.updateRegisterName(it) },
-            label = { Text("用户名") },
+            label = { Text("用户名", color = Color.Gray) },
+            shape = RoundedCornerShape(8.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFFF57C00), // Orange
+                unfocusedBorderColor = Color(0xFFFFB74D), // Light Orange
+                cursorColor = Color(0xFFF57C00) // Orange
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -69,8 +81,14 @@ fun RegisterScreen(
         OutlinedTextField(
             value = registerState.phone,
             onValueChange = { viewModel.updateRegisterPhone(it) },
-            label = { Text("手机号") },
+            label = { Text("手机号", color = Color.Gray) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            shape = RoundedCornerShape(8.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFFF57C00), // Orange
+                unfocusedBorderColor = Color(0xFFFFB74D), // Light Orange
+                cursorColor = Color(0xFFF57C00) // Orange
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -79,8 +97,14 @@ fun RegisterScreen(
         OutlinedTextField(
             value = registerState.email,
             onValueChange = { viewModel.updateRegisterEmail(it) },
-            label = { Text("邮箱") },
+            label = { Text("邮箱", color = Color.Gray) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            shape = RoundedCornerShape(8.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFFF57C00), // Orange
+                unfocusedBorderColor = Color(0xFFFFB74D), // Light Orange
+                cursorColor = Color(0xFFF57C00) // Orange
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -92,13 +116,19 @@ fun RegisterScreen(
                     .format(Date(registerState.dateOfBirth))
             } else "",
             onValueChange = { },
-            label = { Text("出生日期") },
+            label = { Text("出生日期", color = Color.Gray) },
             readOnly = true,
             trailingIcon = {
                 IconButton(onClick = { showDatePicker = true }) {
                     Icon(Icons.Default.DateRange, contentDescription = "选择日期")
                 }
             },
+            shape = RoundedCornerShape(8.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFFF57C00), // Orange
+                unfocusedBorderColor = Color(0xFFFFB74D), // Light Orange
+                cursorColor = Color(0xFFF57C00) // Orange
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -107,8 +137,14 @@ fun RegisterScreen(
         OutlinedTextField(
             value = registerState.password,
             onValueChange = { viewModel.updateRegisterPassword(it) },
-            label = { Text("密码") },
+            label = { Text("密码", color = Color.Gray) },
             visualTransformation = PasswordVisualTransformation(),
+            shape = RoundedCornerShape(8.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFFF57C00), // Orange
+                unfocusedBorderColor = Color(0xFFFFB74D), // Light Orange
+                cursorColor = Color(0xFFF57C00) // Orange
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -126,7 +162,8 @@ fun RegisterScreen(
             ) {
                 RadioButton(
                     selected = registerState.role == "elder",
-                    onClick = { viewModel.updateRegisterRole("elder") }
+                    onClick = { viewModel.updateRegisterRole("elder") },
+                    colors = RadioButtonDefaults.colors(selectedColor = Color(0xFFF57C00))
                 )
                 Text("老人")
             }
@@ -135,7 +172,8 @@ fun RegisterScreen(
             ) {
                 RadioButton(
                     selected = registerState.role == "doctor",
-                    onClick = { viewModel.updateRegisterRole("doctor") }
+                    onClick = { viewModel.updateRegisterRole("doctor") },
+                    colors = RadioButtonDefaults.colors(selectedColor = Color(0xFFF57C00))
                 )
                 Text("医生")
             }
@@ -158,15 +196,17 @@ fun RegisterScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp)
+                .padding(vertical = 16.dp),
+            shape = RoundedCornerShape(24.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFB74D))
         ) {
-            Text("注册")
+            Text("注册", color = Color.White)
         }
 
         TextButton(
             onClick = onNavigateBack
         ) {
-            Text("已有账号？返回登录")
+            Text("已有账号？返回登录", color = Color(0xFFF57C00))
         }
     }
 
@@ -175,7 +215,7 @@ fun RegisterScreen(
             initialSelectedDateMillis = registerState.dateOfBirth.takeIf { it > 0 }
                 ?: System.currentTimeMillis()
         )
-        
+
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {

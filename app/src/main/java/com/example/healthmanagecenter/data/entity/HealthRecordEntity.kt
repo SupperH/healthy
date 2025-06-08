@@ -15,5 +15,6 @@ data class HealthRecordEntity(
     val bloodPressureHigh: Int?, // systolic
     val bloodPressureLow: Int?, // diastolic
     val sleepHours: Float?, // hours
-    val isAnalyzed: Boolean = false // whether analyzed
+    val isAnalyzed: Boolean = false, // whether analyzed
+    val hasFeedback: Boolean = false // whether doctor has provided feedback for this record
 ) 

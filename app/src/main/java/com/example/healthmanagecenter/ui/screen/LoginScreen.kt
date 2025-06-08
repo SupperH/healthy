@@ -12,6 +12,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.healthmanagecenter.viewmodel.LoginRegisterViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.ui.res.painterResource
+import com.example.healthmanagecenter.R
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun LoginScreen(
@@ -34,20 +40,27 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .background(Color(0xFFFFF9F0))
+            .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "登录",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 32.dp)
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = "App Logo",
+            modifier = Modifier.size(120.dp).padding(bottom = 32.dp)
         )
 
         OutlinedTextField(
             value = loginState.name,
             onValueChange = { viewModel.updateLoginName(it) },
-            label = { Text("用户名") },
+            label = { Text("用户名", color = Color.Gray) },
+            shape = RoundedCornerShape(8.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFFF57C00), // Orange
+                unfocusedBorderColor = Color(0xFFFFB74D), // Light Orange
+                cursorColor = Color(0xFFF57C00) // Orange
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -56,8 +69,14 @@ fun LoginScreen(
         OutlinedTextField(
             value = loginState.password,
             onValueChange = { viewModel.updateLoginPassword(it) },
-            label = { Text("密码") },
+            label = { Text("密码", color = Color.Gray) },
             visualTransformation = PasswordVisualTransformation(),
+            shape = RoundedCornerShape(8.dp),
+             colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFFF57C00), // Orange
+                unfocusedBorderColor = Color(0xFFFFB74D), // Light Orange
+                cursorColor = Color(0xFFF57C00) // Orange
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -75,7 +94,8 @@ fun LoginScreen(
             ) {
                 RadioButton(
                     selected = loginState.role == "elder",
-                    onClick = { viewModel.updateLoginRole("elder") }
+                    onClick = { viewModel.updateLoginRole("elder") },
+                    colors = RadioButtonDefaults.colors(selectedColor = Color(0xFFF57C00))
                 )
                 Text("老人")
             }
@@ -84,7 +104,8 @@ fun LoginScreen(
             ) {
                 RadioButton(
                     selected = loginState.role == "doctor",
-                    onClick = { viewModel.updateLoginRole("doctor") }
+                    onClick = { viewModel.updateLoginRole("doctor") },
+                     colors = RadioButtonDefaults.colors(selectedColor = Color(0xFFF57C00))
                 )
                 Text("医生")
             }
@@ -109,9 +130,11 @@ fun LoginScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp)
+                .padding(vertical = 16.dp),
+            shape = RoundedCornerShape(24.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFB74D))
         ) {
-            Text("登录")
+            Text("登录", color = Color.White)
         }
 
         Row(
@@ -121,12 +144,12 @@ fun LoginScreen(
             TextButton(
                 onClick = onNavigateToRegister
             ) {
-                Text("没有账号？点击注册")
+                Text("没有账号？点击注册", color = Color(0xFFF57C00))
             }
             TextButton(
                 onClick = { showResetPasswordDialog = true }
             ) {
-                Text("忘记密码？")
+                Text("忘记密码？", color = Color(0xFFF57C00))
             }
         }
     }

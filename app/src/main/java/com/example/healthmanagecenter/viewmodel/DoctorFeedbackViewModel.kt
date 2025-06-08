@@ -50,6 +50,11 @@ class DoctorFeedbackViewModel(application: Application) : AndroidViewModel(appli
                 abnormalType = abnormalType
             )
             doctorFeedbackDao.insertFeedback(feedback)
+
+            // Update the hasFeedback field for the health record
+            val updatedRecord = record.copy(hasFeedback = true)
+            healthRecordDao.updateHealthRecord(updatedRecord)
+
             true
         } catch (e: Exception) {
             false
