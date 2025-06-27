@@ -27,7 +27,7 @@ import com.example.healthmanagecenter.data.dao.DoctorFeedbackDao
         MedicationReminderEntity::class,
         DoctorFeedbackEntity::class
     ],
-    version = 7,
+    version = 9,
     exportSchema = false
 )
 @TypeConverters(TimeListConverter::class)
@@ -49,7 +49,8 @@ abstract class HealthDatabase : RoomDatabase() {
                     HealthDatabase::class.java,
                     "health_database"
                 )
-                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                .addMigrations(MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
+                    .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance
                 instance
@@ -72,6 +73,12 @@ abstract class HealthDatabase : RoomDatabase() {
         private val MIGRATION_6_7 = object : Migration(6, 7) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE health_records ADD COLUMN hasFeedback INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE users ADD COLUMN gender TEXT NOT NULL DEFAULT 'male'")
             }
         }
     }

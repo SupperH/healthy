@@ -100,6 +100,11 @@ fun HealthRecordItem(
             Spacer(Modifier.height(8.dp))
             record.weight?.let { Text("Weight: $it kg") }
             record.height?.let { Text("Height: $it cm") }
+            if (record.weight != null && record.height != null && record.height > 0) {
+                val h = record.height / 100.0f
+                val bmi = String.format("%.2f", record.weight / (h * h))
+                Text("BMI: $bmi")
+            }
             record.heartRate?.let { Text("Heart Rate: $it bpm") }
             record.bloodPressureHigh?.let { high ->
                 record.bloodPressureLow?.let { low ->

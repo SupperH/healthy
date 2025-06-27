@@ -25,6 +25,7 @@ data class RegisterUiState(
     val email: String = "",
     val dateOfBirth: Long = 0,
     val role: String = "elder",
+    val gender: String = "male",
     val errorMessage: String = ""
 )
 
@@ -103,6 +104,10 @@ class LoginRegisterViewModel(application: Application) : AndroidViewModel(applic
         _registerUiState.value = _registerUiState.value.copy(dateOfBirth = dateOfBirth)
     }
 
+    fun updateRegisterGender(gender: String) {
+        _registerUiState.value = _registerUiState.value.copy(gender = gender)
+    }
+
     fun updateResetPasswordName(name: String) {
         _resetPasswordUiState.value = _resetPasswordUiState.value.copy(name = name)
     }
@@ -157,7 +162,8 @@ class LoginRegisterViewModel(application: Application) : AndroidViewModel(applic
                     password = state.password,
                     email = state.email,
                     dateOfBirth = state.dateOfBirth,
-                    role = state.role
+                    role = state.role,
+                    gender = state.gender
                 )
             )
             true

@@ -13,5 +13,6 @@ data class UserEntity(
     val password: String,
     val email: String,
     val dateOfBirth: Long,
+    val gender: String = "male", // "male" or "female"
     val doctorId: Long? = null // Only for elders
 ) 

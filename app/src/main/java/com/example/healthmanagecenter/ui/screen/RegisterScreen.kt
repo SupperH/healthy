@@ -150,6 +150,36 @@ fun RegisterScreen(
                 .padding(vertical = 8.dp)
         )
 
+        // Gender selection
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(end = 16.dp)
+            ) {
+                RadioButton(
+                    selected = registerState.gender == "male",
+                    onClick = { viewModel.updateRegisterGender("male") },
+                    colors = RadioButtonDefaults.colors(selectedColor = Color(0xFFF57C00))
+                )
+                Text("Male")
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = registerState.gender == "female",
+                    onClick = { viewModel.updateRegisterGender("female") },
+                    colors = RadioButtonDefaults.colors(selectedColor = Color(0xFFF57C00))
+                )
+                Text("Female")
+            }
+        }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()

@@ -75,20 +75,22 @@ fun DoctorHomeScreen(
                     .padding(16.dp)
             ) {
                 // Alerts Summary
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(16.dp)
+                if (alertsCount > 0) {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(Icons.Default.Warning, contentDescription = "Alerts", tint = Color(0xFFFF9800), modifier = Modifier.size(40.dp))
-                        Spacer(Modifier.width(16.dp))
-                        Text("Unhandled Alerts: $alertsCount", style = MaterialTheme.typography.titleMedium)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Icon(Icons.Default.Warning, contentDescription = "Alerts", tint = Color(0xFFFF9800), modifier = Modifier.size(40.dp))
+                            Spacer(Modifier.width(16.dp))
+                            Text("Unhandled Alerts: $alertsCount", style = MaterialTheme.typography.titleMedium)
+                        }
                     }
+                    Spacer(Modifier.height(16.dp))
                 }
-                Spacer(Modifier.height(16.dp))
                 // Bound Elders List
                 Text("Bound Elders", style = MaterialTheme.typography.titleLarge)
                 LazyColumn(
@@ -250,7 +252,9 @@ fun ElderHealthDetailScreen(
                 Text("Heart Rate: ${uiState.heartRate}", style = MaterialTheme.typography.bodyLarge)
                 Text("Blood Pressure: ${uiState.bloodPressureHigh}/${uiState.bloodPressureLow}", style = MaterialTheme.typography.bodyLarge)
                 Text("Sleep Hours: ${uiState.sleepHours}", style = MaterialTheme.typography.bodyLarge)
-                Text("Score: ${uiState.score}", style = MaterialTheme.typography.bodyLarge)
+                // Text("Score: ${uiState.score}", style = MaterialTheme.typography.bodyLarge)
+                // 如果需要显示BMI，可以这样：
+                // Text("BMI: ${uiState.bmi}", style = MaterialTheme.typography.bodyLarge)
                 if (uiState.abnormalTips.isNotEmpty()) {
                     Text("Abnormal: ${uiState.abnormalTips}", color = Color(0xFFE53935), style = MaterialTheme.typography.bodyMedium)
                 }

@@ -157,7 +157,7 @@ fun HealthAnalysisCard(uiState: HealthRecordUiState) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.BarChart, contentDescription = "Analysis", tint = Color(0xFF4A90E2))
                 Spacer(Modifier.width(8.dp))
-                Text("Health Score: ${uiState.score}", style = MaterialTheme.typography.titleMedium)
+                Text("BMI: ${uiState.bmi}", style = MaterialTheme.typography.titleMedium)
             }
             if (uiState.abnormalTips.isNotEmpty()) {
                 Text(
@@ -166,7 +166,6 @@ fun HealthAnalysisCard(uiState: HealthRecordUiState) {
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            // TODO: Draw trend chart (can use Accompanist or MPAndroidChart Compose version)
             if (uiState.doctorComment.isNotEmpty()) {
                 Divider(Modifier.padding(vertical = 8.dp))
                 Text("Doctor's Comment:", style = MaterialTheme.typography.titleSmall)

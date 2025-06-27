@@ -77,25 +77,16 @@ class HealthRecordViewModel(application: Application, private val userId: Long) 
     }
 
     private fun analyze(record: HealthRecordEntity) {
-        var score = 100
-        val tips = mutableListOf<String>()
-        val normalWeight = 65f
-        if (record.weight != null && (record.weight < normalWeight * 0.85f || record.weight > normalWeight * 1.15f)) {
-            score -= 10; tips.add("Abnormal weight")
+        // 只计算BMI
+        val weight = record.weight
+        val height = record.height
+        val bmi = if (weight != null && height != null && height > 0) {
+            val h = height / 100.0f
+            String.format("%.2f", weight / (h * h))
+        } else {
+            "-"
         }
-        if (record.heartRate != null && (record.heartRate < 60 || record.heartRate > 100)) {
-            score -= 15; tips.add("Abnormal heart rate")
-        }
-        if (record.bloodPressureHigh != null && record.bloodPressureLow != null) {
-            if (record.bloodPressureHigh > 140 || record.bloodPressureLow > 90 ||
-                record.bloodPressureHigh < 90 || record.bloodPressureLow < 60) {
-                score -= 15; tips.add("Abnormal blood pressure")
-            }
-        }
-        if (record.sleepHours != null && (record.sleepHours < 6 || record.sleepHours > 10)) {
-            score -= 10; tips.add("Abnormal sleep duration")
-        }
-        _uiState.value = _uiState.value.copy(score = score, abnormalTips = tips.joinToString())
+        _uiState.value = _uiState.value.copy(bmi = bmi, abnormalTips = "")
     }
 
     private fun getTodayMillis(): Long {
@@ -127,7 +118,7 @@ data class HealthRecordUiState(
     val bloodPressureLow: String = "",
     val sleepHours: String = "",
     val isFirstInput: Boolean = true,
-    val score: Int = 100,
+    val bmi: String = "",
     val abnormalTips: String = "",
     val doctorComment: String = "",
     val dateStr: String = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date()),
