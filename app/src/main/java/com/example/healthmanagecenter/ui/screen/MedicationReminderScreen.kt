@@ -369,7 +369,6 @@ fun TimePickerDialog(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // 小时选择
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Hour", style = MaterialTheme.typography.bodyMedium)
                         Spacer(Modifier.height(8.dp))
@@ -393,7 +392,6 @@ fun TimePickerDialog(
 
                     Text(":", style = MaterialTheme.typography.headlineMedium)
 
-                    // 分钟选择
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Minute", style = MaterialTheme.typography.bodyMedium)
                         Spacer(Modifier.height(8.dp))

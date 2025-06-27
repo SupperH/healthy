@@ -90,7 +90,7 @@ fun DoctorFeedbackScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .padding(bottom = 16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
@@ -104,7 +104,6 @@ fun DoctorFeedbackScreen(
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
-                    
                     OutlinedTextField(
                         value = comment,
                         onValueChange = { comment = it },
@@ -117,9 +116,7 @@ fun DoctorFeedbackScreen(
                             unfocusedBorderColor = MaterialTheme.colorScheme.outline
                         )
                     )
-                    
                     Spacer(Modifier.height(16.dp))
-                    
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End

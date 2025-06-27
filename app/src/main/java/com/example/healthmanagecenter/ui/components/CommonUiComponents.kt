@@ -93,11 +93,11 @@ fun FeedbackCard(
             
             Spacer(Modifier.height(8.dp))
             
-            Text(
-                text = "Tap to view details",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+//            Text(
+//                text = "Tap to view details",
+//                style = MaterialTheme.typography.bodySmall,
+//                color = MaterialTheme.colorScheme.onSurfaceVariant
+//            )
         }
     }
 }

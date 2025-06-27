@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.healthmanagecenter.data.entity.AlertEntity
@@ -123,9 +124,23 @@ fun ElderBriefCard(elder: ElderBrief, onElderClick: (Long) -> Unit, onHealthDeta
                 }
             }
             Spacer(Modifier.height(8.dp))
-            Button(onClick = { onHealthDetail(elder.userId) }, modifier = Modifier.align(Alignment.End)) {
-                Text("View Health Data")
-            }
+//            Button(
+//                onClick = {
+//                    onHealthDetail(elder.userId)
+//                },
+//                modifier = Modifier
+//                    .align(Alignment.End)
+//                    .pointerInput(Unit) {
+//                        // 拦截点击事件，防止冒泡到Card
+//                        awaitPointerEventScope {
+//                            while (true) {
+//                                awaitPointerEvent()
+//                            }
+//                        }
+//                    }
+//            ) {
+//                Text("View Health Data")
+//            }
         }
     }
 }
